@@ -13,7 +13,7 @@ func main(){
 }
 
 func SendToKafka(){
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "209.126.10.224:9092"})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost"})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
