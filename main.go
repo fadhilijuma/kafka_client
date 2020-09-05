@@ -8,11 +8,11 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-func main(){
+func main() {
 	consumeFromKafka()
 }
 
-func SendToKafka(){
+func SendToKafka() {
 	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost"})
 	if err != nil {
 		fmt.Println(err)
@@ -35,8 +35,8 @@ func SendToKafka(){
 		}
 	}()
 
-	jsonRequest:=`{"name":"kiptoo"}`
-	b,bEr:=json.Marshal(jsonRequest)
+	jsonRequest := `{"name":"kiptoo"}`
+	b, bEr := json.Marshal(jsonRequest)
 	if bEr != nil {
 		fmt.Println(bEr)
 	}
@@ -44,7 +44,7 @@ func SendToKafka(){
 	// Produce messages to topic (asynchronously)
 	topic := "WelcomeKafka"
 
-	er:=p.Produce(&kafka.Message{
+	er := p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          b,
 	}, nil)
@@ -56,19 +56,26 @@ func SendToKafka(){
 	// Wait for message deliveries before shutting down
 	p.Flush(15 * 1000)
 }
-func consumeFromKafka(){
+func consumeFromKafka() {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": "209.126.10.224:9092",
 		"group.id":          "NamesGroup",
 		"auto.offset.reset": "earliest",
 	})
-	defer c.Close()
+
+	defer func() {
+		errC := c.Close()
+		if errC != nil {
+			fmt.Println(errC)
+			os.Exit(1)
+		}
+	}()
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	subscribeError:=c.SubscribeTopics([]string{"WelcomeKafka"}, nil)
+	subscribeError := c.SubscribeTopics([]string{"WelcomeKafka"}, nil)
 	if subscribeError != nil {
 		fmt.Println(subscribeError)
 	}
